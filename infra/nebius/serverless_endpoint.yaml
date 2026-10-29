@@ -1,0 +1,42 @@
+# Nebius Serverless Endpoint Specification
+# Hosts the TwinForge Enterprise Intelligence FastAPI backend on Nebius AI Cloud.
+apiVersion: serverless.nebius.ai/v1alpha1
+kind: ServerlessEndpoint
+metadata:
+  name: twinforge-backend-endpoint
+  namespace: twinforge-prod
+spec:
+  minReplicas: 1
+  maxReplicas: 8
+  scaleDownDelaySeconds: 300
+  template:
+    spec:
+      containers:
+        - name: twinforge-backend
+          image: cr.ai.nebius.cloud/twinforge/backend:v1.0.0
+          ports:
+            - containerPort: 8000
+          env:
+            - name: AI_PROVIDER
+              value: "nebius"
+            - name: NEBIUS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nebius-secrets
+                  key: token-factory-api-key
+            - name: NEBIUS_MODEL
+              value: "nvidia/llama-3.1-nemotron-70b-instruct"
+            - name: NEBIUS_BASE_URL
+              value: "https://api.tokenfactory.nebius.com/v1"
+            - name: TAVILY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nebius-secrets
+                  key: tavily-api-key
+          resources:
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"

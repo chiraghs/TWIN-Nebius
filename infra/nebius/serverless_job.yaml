@@ -1,0 +1,33 @@
+# Nebius Serverless Job Specification
+# Executes synthetic telemetry generation and deterministic failure simulation
+# on Nebius AI Cloud.
+apiVersion: serverless.nebius.ai/v1alpha1
+kind: ServerlessJob
+metadata:
+  name: twinforge-physics-simulator
+  namespace: twinforge-prod
+spec:
+  template:
+    spec:
+      containers:
+        - name: physics-simulator
+          image: cr.ai.nebius.cloud/twinforge/physics-simulator:v1.0.0
+          command: ["python", "infra/nebius/job_physics_simulation.py"]
+          args: ["--assets", "24", "--steps", "5000", "--fault-prob", "0.20"]
+          resources:
+            requests:
+              cpu: "2"
+              memory: "4Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+          env:
+            - name: NEBIUS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nebius-secrets
+                  key: token-factory-api-key
+            - name: NEBIUS_MODEL
+              value: "nvidia/llama-3.1-nemotron-70b-instruct"
+      restartPolicy: Never
+  backoffLimit: 2
