@@ -11,7 +11,13 @@ export const metadata: Metadata = {
   title: "TwinForge AI — Agentic Industrial Digital Twin",
   description:
     "Create your factory's digital twin. Let AI understand its operations, predict what could go wrong, simulate better decisions, and act before losses happen.",
-  icons: { icon: "/favicon.svg" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    apple: "/brand/twinforge-mark-192.png",
+  },
 };
 
 export const viewport: Viewport = {
