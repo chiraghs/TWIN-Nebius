@@ -1,0 +1,57 @@
+services:
+  # ───────────────────────────────────────────────────────────────────────────
+  # 1. Enterprise Manufacturing Intelligence Backend (Python FastAPI)
+  # ───────────────────────────────────────────────────────────────────────────
+  - type: web
+    name: twinforge-python-backend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: AI_PROVIDER
+        value: nebius
+      - key: NEBIUS_MODEL
+        value: nvidia/llama-3.1-nemotron-70b-instruct
+      - key: NEBIUS_BASE_URL
+        value: https://api.tokenfactory.nebius.com/v1
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 2. Digital Twin 3D Studio & Command Center Frontend (Next.js 15)
+  # ───────────────────────────────────────────────────────────────────────────
+  - type: web
+    name: twinforge-frontend
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: PORT
+        value: 3000
+      - key: AI_PROVIDER
+        value: nebius
+      - key: NEBIUS_MODEL
+        value: nvidia/llama-3.1-nemotron-70b-instruct
+      - key: NEBIUS_BASE_URL
+        value: https://api.tokenfactory.nebius.com/v1
+      - key: VISION_SERVICE_URL
+        fromService:
+          type: web
+          name: twinforge-python-backend
+          property: host
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
